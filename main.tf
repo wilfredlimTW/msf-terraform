@@ -157,4 +157,11 @@ module "ecs_cluster" {
   target_group_arn   = module.workload_alb.target_group_arn
 }
 
-# module "aurora_db" { ... }
+module "aurora_db" {
+  source             = "./modules/aurora"
+  environment        = var.environment
+
+  # Extracting Data Subnets (index 4 and 5) from the Workload VPC
+  subnet_ids         = slice(module.workload_vpc.private_subnet_ids, 4, 6)
+  security_group_ids = [module.security_groups.aurora_db_sg_id]
+}
