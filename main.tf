@@ -78,7 +78,17 @@ module "transit_gateway" {
 # ==========================================
 # 3. SECURITY & INGRESS: SGs, ALBs, NLBs
 # ==========================================
-# module "security_groups" { ... }
+module "security_groups" {
+  source            = "./modules/security-groups"
+  environment       = var.environment
+
+  internet_vpc_id   = module.internet_vpc.vpc_id
+  internet_vpc_cidr = var.vpc_cidr_internet
+
+  workload_vpc_id   = module.workload_vpc.vpc_id
+  workload_vpc_cidr = var.vpc_cidr_workload
+}
+
 # module "internet_alb" { ... }
 # module "workload_nlb" { ... }
 # module "workload_alb" { ... }
