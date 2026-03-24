@@ -90,7 +90,18 @@ module "security_groups" {
 }
 
 # module "internet_alb" { ... }
-# module "workload_nlb" { ... }
+
+module "workload_nlb" {
+  source             = "./modules/nlb"
+  environment        = var.environment
+
+  vpc_id             = module.workload_vpc.vpc_id
+  # Extracting Web Subnets (index 0 and 1) from the private_subnet_ids list
+  subnet_ids         = slice(module.workload_vpc.private_subnet_ids, 0, 2)
+
+  security_group_ids = [module.security_groups.workload_nlb_sg_id]
+}
+
 # module "workload_alb" { ... }
 
 # ==========================================
