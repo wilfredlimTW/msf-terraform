@@ -1,0 +1,26 @@
+# Local .terraform directories and files
+**/.terraform/*
+.terraform.lock.hcl
+
+# Local state files and workspace directories (CRITICAL to ignore)
+*.tfstate
+*.tfstate.*
+terraform.tfstate.d/
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore all tfvars by default...
+*.tfvars
+*.tfvars.json
+
+# ...but explicitly allow our environment tfvars
+!dev.tfvars
+!prod.tfvars
