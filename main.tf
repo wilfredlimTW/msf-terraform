@@ -89,8 +89,6 @@ module "security_groups" {
   workload_vpc_cidr = var.vpc_cidr_workload
 }
 
-# module "internet_alb" { ... }
-
 module "workload_nlb" {
   source             = "./modules/nlb"
   environment        = var.environment
@@ -102,7 +100,46 @@ module "workload_nlb" {
   security_group_ids = [module.security_groups.workload_nlb_sg_id]
 }
 
-# module "workload_alb" { ... }
+# ==========================================
+# INGRESS LAYER 1: Internet ALB (The Entrypoint)
+# ==========================================
+module "internet_alb" {
+  source             = "./modules/alb"
+  alb_name           = "internet-alb-${var.environment}"
+  internal           = false # Public-facing
+  vpc_id             = module.internet_vpc.vpc_id
+
+  # Placed in the Public Subnets (Index 0 and 1)
+  subnet_ids         = module.internet_vpc.public_subnet_ids
+  security_group_ids = [module.security_groups.internet_alb_sg_id]
+  target_port        = 80
+}
+
+# Cross-VPC Attachment: Manually register the NLB's private IPs to the Internet ALB
+resource "aws_lb_target_group_attachment" "internet_alb_to_nlb" {
+  # Create an attachment for every IP the NLB module outputted
+  count            = length(module.workload_nlb.nlb_private_ips)
+  target_group_arn = module.internet_alb.target_group_arn
+  target_id        = module.workload_nlb.nlb_private_ips[count.index]
+  port             = 80
+}
+
+# ==========================================
+# INGRESS LAYER 2: Workload ALB (The App Gateway)
+# ==========================================
+module "workload_alb" {
+  source             = "./modules/alb"
+  alb_name           = "workload-alb-${var.environment}"
+  internal           = true # Strictly internal
+  vpc_id             = module.workload_vpc.vpc_id
+
+  # Placed in the Web Subnets (Index 0 and 1) alongside the NLB
+  subnet_ids         = slice(module.workload_vpc.private_subnet_ids, 0, 2)
+  security_group_ids = [module.security_groups.workload_alb_sg_id]
+
+  # Echoserver runs on port 8080
+  target_port        = 8080
+}
 
 # ==========================================
 # 4. COMPUTE & DATA: ECS & Aurora
