@@ -144,5 +144,17 @@ module "workload_alb" {
 # ==========================================
 # 4. COMPUTE & DATA: ECS & Aurora
 # ==========================================
-# module "ecs_cluster" { ... }
+
+module "ecs_cluster" {
+  source             = "./modules/ecs"
+  environment        = var.environment
+
+  # Extracting App Subnets (index 2 and 3) from the Workload VPC
+  subnet_ids         = slice(module.workload_vpc.private_subnet_ids, 2, 4)
+  security_group_ids = [module.security_groups.ecs_tasks_sg_id]
+
+  # Attaching the service to the internal Workload ALB
+  target_group_arn   = module.workload_alb.target_group_arn
+}
+
 # module "aurora_db" { ... }
