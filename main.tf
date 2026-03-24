@@ -142,6 +142,19 @@ module "workload_alb" {
 }
 
 # ==========================================
+# ADVANCED SECURITY: Deep Packet Inspection
+# ==========================================
+# module "network_firewall" {
+#   source              = "./modules/network-firewall"
+#   environment         = var.environment
+#   vpc_id              = module.internet_vpc.vpc_id
+#
+#   # Note: Dedicated /28 subnets will need to be added to the internet_vpc
+#   # module inputs before this can be safely activated.
+#   firewall_subnet_ids = []
+# }
+
+# ==========================================
 # 4. COMPUTE & DATA: ECS & Aurora
 # ==========================================
 
