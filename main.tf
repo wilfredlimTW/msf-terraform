@@ -56,10 +56,24 @@ module "internet_nat" {
   private_route_table_id = module.internet_vpc.private_route_table_id
 }
 
-# module "transit_gateway" {
-#   source = "./modules/transit-gateway"
-#   ...
-# }
+module "transit_gateway" {
+  source   = "./modules/transit-gateway"
+  tgw_name = "central-tgw-${var.environment}"
+
+  # Internet VPC Inputs
+  internet_vpc_id                 = module.internet_vpc.vpc_id
+  # Extracting subnets at index 2 and 3 (the ones we allocated for TGW)
+  internet_tgw_subnet_ids         = slice(module.internet_vpc.private_subnet_ids, 2, 4)
+  internet_public_route_table_id  = module.internet_vpc.public_route_table_id
+  internet_private_route_table_id = module.internet_vpc.private_route_table_id
+
+  # Workload VPC Inputs
+  workload_vpc_id                 = module.workload_vpc.vpc_id
+  workload_vpc_cidr               = var.vpc_cidr_workload
+  # Extracting subnets at index 6 and 7 (the ones we allocated for TGW)
+  workload_tgw_subnet_ids         = slice(module.workload_vpc.private_subnet_ids, 6, 8)
+  workload_private_route_table_id = module.workload_vpc.private_route_table_id
+}
 
 # ==========================================
 # 3. SECURITY & INGRESS: SGs, ALBs, NLBs
