@@ -29,12 +29,12 @@ module "workload_vpc" {
 # 2. ROUTING & EGRESS: NAT & Transit Gateway
 # ==========================================
 
-module "internet_nat" {
-  source                  = "./modules/nat-gateway"
-  vpc_id                  = module.internet_vpc.vpc_id
-  public_subnet_ids       = module.internet_vpc.public_subnet_ids
-  private_route_table_ids = module.internet_vpc.private_route_table_ids
-}
+# module "internet_nat" {
+#   source                  = "./modules/nat-gateway"
+#   vpc_id                  = module.internet_vpc.vpc_id
+#   public_subnet_ids       = module.internet_vpc.public_subnet_ids
+#   private_route_table_ids = module.internet_vpc.private_route_table_ids
+# }
 
 # module "transit_gateway" {
 #   source = "./modules/transit-gateway"
